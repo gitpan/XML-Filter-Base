@@ -1,0 +1,43 @@
+XML::Filter::Base is a base class for PerlSAX filters that by default
+simply passes the event on to the next handler. You can use this to
+build very simple filters, for example a filter that lower-cases
+all your XML tags:
+
+  package XML::Filter::Lower;
+  use XML::Filter::Base;
+  @ISA = ('XML::Filter::Base');
+  
+  sub start_element {
+    my ($self, $element) = @_;
+    $element->{Name} = lc($element->{Name});
+    $self->{Handler}->start_element($element);
+  }
+  
+  sub end_element {
+    my ($self, $element) = @_;
+    $element->{Name} = lc($element->{Name});
+    $self->{Handler}->end_element($element);
+  }
+
+or a filter that changes certain elements based on a given hash:
+
+  package XML::Filter::ElementHash;
+  use XML::Filter::Base;
+  @ISA = ('XML::Filter::Base');
+  
+  sub start_element {
+    my ($self, $element) = @_;
+    $element->{Name} = $self->{ElementHash}{$element->{Name}} 
+                    || $element->{Name};
+    $self->{Handler}->start_element($element);
+  }
+  
+  sub end_element {
+    my ($self, $element) = @_;
+    $element->{Name} = $self->{ElementHash}{$element->{Name}} 
+                    || $element->{Name};
+    $self->{Handler}->end_element($element);
+  }
+
+If you want a filter that reads XML and writes it out the other end,
+check out XML::Handler::YAWriter.
